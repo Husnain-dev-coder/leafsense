@@ -1,0 +1,22 @@
+# LeafSense - Plant Disease Detection System
+# Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Web Framework
+flask==3.0.0
+flask-cors==4.0.0
+
+# AI and Machine Learning
+tensorflow==2.15.0
+numpy==1.26.4
+
+# Image Processing
+pillow==10.2.0
+
+# AI APIs
+groq==0.8.0
+google-genai==0.5.0
+
+# Utilities
+requests==2.31.0
+python-dotenv==1.0.0

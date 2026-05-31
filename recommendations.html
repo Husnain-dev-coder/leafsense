@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeafSense — Recommendations</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="home.html" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8.5C9 21 10.5 20 12 20s3 1 4 2.5C19.5 21 22 18 22 14c0-6-4-12-10-12z"/></svg>
+      LeafSense
+    </a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About</a>
+      <a href="recommendations.html" class="active">Recommendations</a>
+    </div>
+    <a href="home.html#upload" class="btn-scan">Scan Now</a>
+  </nav>
+
+  <!-- Header -->
+  <section class="page-header" style="padding-bottom:20px">
+    <h1 style="font-size:3rem; text-align:left; padding-left:40px">Grow Smarter</h1>
+    <p style="text-align:left; padding-left:40px; max-width:500px">Expert recommendations tailored to your local microclimate and soil data. Leveraging botanical intelligence to maximize your yield and plant vitality.</p>
+  </section>
+
+  <!-- Seasonal Alert -->
+  <section style="padding:0 40px 40px">
+    <div class="alert-banner">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-text">
+        <small>SEASONAL ALERT: PACIFIC NORTHWEST</small>
+        <h4>Wheat Crops: High Humidity & Fungal Risk</h4>
+        <p>Current atmospheric readings indicate elevated spore counts. Increase aeration protocols and monitor lower leaf canopy for discoloration.</p>
+      </div>
+      <button class="btn-outline">VIEW PROTOCOL</button>
+    </div>
+  </section>
+
+  <!-- Filter Tabs -->
+  <section style="padding:0 40px 30px">
+    <div class="filter-tabs">
+      <button class="filter-btn active" onclick="filterPlants('all', this)">All</button>
+      <button class="filter-btn" onclick="filterPlants('vegetable', this)">Vegetables</button>
+      <button class="filter-btn" onclick="filterPlants('fruit', this)">Fruits</button>
+      <button class="filter-btn" onclick="filterPlants('grain', this)">Grains</button>
+      <button class="filter-btn" onclick="filterPlants('flower', this)">Flowers</button>
+      <button class="filter-btn" onclick="filterPlants('herb', this)">Herbs</button>
+    </div>
+  </section>
+
+  <!-- Plants Grid -->
+  <section style="padding:0 40px 80px">
+    <div class="plants-grid" id="plantsGrid">
+
+      <div class="plant-card" data-cat="vegetable">
+        <div class="plant-img" style="background: linear-gradient(135deg, #8b2020, #c0392b)">
+          <span class="plant-emoji">🍅</span>
+          <span class="health-badge healthy">● HEALTHY</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">SOLANUM LYCOPERSICUM</small>
+          <h4>Cherry Tomatoes</h4>
+          <ul class="care-list">
+            <li>◇ Watering: Twice weekly</li>
+            <li>☀ Light: Full solar exposure</li>
+          </ul>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="plant-card" data-cat="vegetable">
+        <div class="plant-img" style="background: linear-gradient(135deg, #1b4a2e, #2d7a4a)">
+          <span class="plant-emoji">🥒</span>
+          <span class="health-badge at-risk">● AT RISK</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">CUCUMIS SATIVUS</small>
+          <h4>Garden Cucumbers</h4>
+          <div class="disease-alert">
+            <strong>Detection: Downy Mildew</strong>
+            <p>Recommended: Apply copper fungicide immediately and reduce overhead watering.</p>
+          </div>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="plant-card" data-cat="flower">
+        <div class="plant-img" style="background: linear-gradient(135deg, #b8860b, #f4c430)">
+          <span class="plant-emoji">🌻</span>
+          <span class="health-badge peak">● PEAK BLOOM</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">HELIANTHUS ANNUUS</small>
+          <h4>Giant Sunflowers</h4>
+          <ul class="care-list">
+            <li>📏 Height: 2.1m (+12cm this week)</li>
+          </ul>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="plant-card" data-cat="vegetable">
+        <div class="plant-img" style="background: linear-gradient(135deg, #1a3a1a, #2d5a2d)">
+          <span class="plant-emoji">🥬</span>
+          <span class="health-badge optimal">● OPTIMAL</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">BRASSICA OLERACEA</small>
+          <h4>Winter Kale</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:8px 0">Excellent nutrient retention. Soil pH levels are perfectly aligned for a late-season harvest.</p>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="plant-card" data-cat="herb">
+        <div class="plant-img" style="background: linear-gradient(135deg, #4a2d7a, #7b52c3)">
+          <span class="plant-emoji">💜</span>
+          <span class="health-badge healthy">● HEALTHY</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">LAVANDULA ANGUSTIFOLIA</small>
+          <h4>English Lavender</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:8px 0">Thriving in current low-nitrogen soil conditions. No intervention required.</p>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="plant-card" data-cat="grain">
+        <div class="plant-img" style="background: linear-gradient(135deg, #5a3a1a, #8b6914)">
+          <span class="plant-emoji">🌾</span>
+          <span class="health-badge alert-red">● ALERT</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">TRITICUM AESTIVUM</small>
+          <h4>Spring Wheat</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:8px 0">Moisture sensors in Section B-4 report 85% saturation. High risk of root rot detected.</p>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="plant-card" data-cat="fruit">
+        <div class="plant-img" style="background: linear-gradient(135deg, #2d1a4a, #6b35a8)">
+          <span class="plant-emoji">🍇</span>
+          <span class="health-badge healthy">● HEALTHY</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">VITIS VINIFERA</small>
+          <h4>Cabernet Grapevine</h4>
+          <ul class="care-list">
+            <li>💧 Irrigation: Every 3 days</li>
+            <li>✂️ Pruning: Due in 2 weeks</li>
+          </ul>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="plant-card" data-cat="herb">
+        <div class="plant-img" style="background: linear-gradient(135deg, #1a3a1a, #3d7a2d)">
+          <span class="plant-emoji">🌿</span>
+          <span class="health-badge optimal">● OPTIMAL</span>
+        </div>
+        <div class="plant-body">
+          <small class="latin-name">OCIMUM BASILICUM</small>
+          <h4>Sweet Basil</h4>
+          <ul class="care-list">
+            <li>🌡️ Temp: 22-26°C ideal range</li>
+            <li>💡 Pinch blooms to extend harvest</li>
+          </ul>
+          <button class="btn-guide">View Full Guide →</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- AI Chat Bar -->
+  <section class="ai-chat-section">
+    <div class="ai-chat-bar">
+      <div class="ai-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8.5C9 21 10.5 20 12 20s3 1 4 2.5C19.5 21 22 18 22 14c0-6-4-12-10-12z"/></svg>
+      </div>
+      <input type="text" id="aiInput" placeholder="Ask LeafSense AI anything about your garden…" />
+      <button onclick="askAI()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div id="aiResponse" class="ai-response" style="display:none"></div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:1.2rem">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8.5C9 21 10.5 20 12 20s3 1 4 2.5C19.5 21 22 18 22 14c0-6-4-12-10-12z"/></svg>
+          LeafSense
+        </div>
+        <p>Bridging the gap between ancient botany and future intelligence.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Scientific Methodology</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-copy">© 2024 LeafSense Botanical Intelligence. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

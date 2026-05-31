@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeafSense — Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="home.html" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8.5C9 21 10.5 20 12 20s3 1 4 2.5C19.5 21 22 18 22 14c0-6-4-12-10-12z"/></svg>
+      LeafSense
+    </a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About</a>
+      <a href="recommendations.html">Recommendations</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <!-- Theme Toggle -->
+      <button id="themeBtn" onclick="toggleTheme()" title="Toggle theme" style="
+        background:none;border:1px solid var(--border-soft);border-radius:20px;
+        padding:6px 14px;color:var(--text-muted);cursor:pointer;
+        font-size:0.8rem;display:flex;align-items:center;gap:6px;transition:all 0.2s;">
+        🌙 Dark
+      </button>
+      <a href="home.html#upload" class="btn-scan">Scan Now</a>
+    </div>
+  </nav>
+
+  <!-- Dashboard Header -->
+  <section class="dash-header">
+    <div class="dash-header-inner">
+      <div class="dash-avatar" id="dashAvatar">?</div>
+      <div class="dash-info">
+        <h1 id="dashName">Loading...</h1>
+        <p  id="dashEmail" style="color:var(--text-muted);font-size:0.9rem"></p>
+        <span class="dash-badge">🌿 Botanical Researcher</span>
+      </div>
+      <button onclick="signOutUser()" class="btn-signout">Sign Out</button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number" id="statTotal">0</div>
+        <div class="stat-label">Total Scans</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statDiseased">0</div>
+        <div class="stat-label">Diseases Found</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statHealthy">0</div>
+        <div class="stat-label">Healthy Plants</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statCrops">0</div>
+        <div class="stat-label">Crops Analyzed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scan History -->
+  <section class="history-section">
+    <div class="history-header">
+      <h2>📋 Scan History</h2>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="filterCrop" onchange="filterHistory()" class="filter-select">
+          <option value="all">All Crops</option>
+          <option value="Tomato">Tomato</option>
+          <option value="Potato">Potato</option>
+          <option value="Corn">Corn</option>
+          <option value="Apple">Apple</option>
+          <option value="Grape">Grape</option>
+          <option value="Pepper">Pepper</option>
+        </select>
+        <select id="filterSeverity" onchange="filterHistory()" class="filter-select">
+          <option value="all">All Severity</option>
+          <option value="None">Healthy</option>
+          <option value="Mild">Mild</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Severe">Severe</option>
+        </select>
+        <button onclick="clearHistory()" style="
+          background:none;border:1px solid rgba(239,68,68,0.4);
+          border-radius:6px;padding:8px 16px;color:#ef4444;
+          cursor:pointer;font-size:0.82rem;transition:all 0.2s;">
+          🗑️ Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyHistory" style="
+      text-align:center;padding:60px 20px;
+      color:var(--text-muted);display:none;">
+      <div style="font-size:3rem;margin-bottom:16px">🌿</div>
+      <h3 style="font-family:'Playfair Display',serif;margin-bottom:8px">No scans yet</h3>
+      <p style="font-size:0.9rem">Upload a plant image on the Home page to get started!</p>
+      <a href="home.html#upload" style="
+        display:inline-block;margin-top:16px;padding:10px 24px;
+        background:var(--accent);color:#0f2318;border-radius:6px;
+        text-decoration:none;font-weight:600;font-size:0.85rem;">
+        Start Scanning 🌿
+      </a>
+    </div>
+
+    <!-- History Grid -->
+    <div id="historyGrid" class="history-grid"></div>
+  </section>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey           : "AIzaSyAbSWChhuGP-uHYsRcNcwZp0g5B8DXQT8I",
+      authDomain       : "leafsense-2c415.firebaseapp.com",
+      projectId        : "leafsense-2c415",
+      storageBucket    : "leafsense-2c415.firebasestorage.app",
+      messagingSenderId: "595437755835",
+      appId            : "1:595437755835:web:692686217832ae93d8789e"
+    };
+
+    const fbApp = initializeApp(firebaseConfig);
+    const auth  = getAuth(fbApp);
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        const name  = user.displayName || user.email.split("@")[0];
+        const email = user.email;
+        const photo = user.photoURL;
+
+        document.getElementById("dashName").textContent  = name;
+        document.getElementById("dashEmail").textContent = email;
+
+        const av = document.getElementById("dashAvatar");
+        if (photo) {
+          av.innerHTML = `<img src="${photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+        } else {
+          av.textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Save for other pages
+        localStorage.setItem("leafsense_user", JSON.stringify({ name, email, photo: photo||"" }));
+      } else {
+        // Check localStorage fallback
+        const saved = localStorage.getItem("leafsense_user");
+        if (saved) {
+          const u = JSON.parse(saved);
+          document.getElementById("dashName").textContent  = u.name;
+          document.getElementById("dashEmail").textContent = u.email;
+          if (u.photo) {
+            document.getElementById("dashAvatar").innerHTML =
+              `<img src="${u.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+          } else {
+            document.getElementById("dashAvatar").textContent = u.name.charAt(0).toUpperCase();
+          }
+        } else {
+          window.location.href = "index.html";
+        }
+      }
+    });
+
+    window.signOutUser = async function() {
+      await signOut(auth);
+      localStorage.removeItem("leafsense_user");
+      window.location.href = "index.html";
+    };
+  </script>
+
+  <script src="main.js"></script>
+  <script>
+    // Load and display scan history from localStorage
+    let allHistory = [];
+
+    function loadHistory() {
+      const raw = localStorage.getItem("leafsense_history");
+      allHistory = raw ? JSON.parse(raw) : [];
+      updateStats();
+      renderHistory(allHistory);
+    }
+
+    function updateStats() {
+      const total    = allHistory.length;
+      const diseased = allHistory.filter(h => h.severity !== "None").length;
+      const healthy  = allHistory.filter(h => h.severity === "None").length;
+      const crops    = [...new Set(allHistory.map(h => h.crop).filter(Boolean))].length;
+
+      animateNumber("statTotal",    total);
+      animateNumber("statDiseased", diseased);
+      animateNumber("statHealthy",  healthy);
+      animateNumber("statCrops",    crops);
+    }
+
+    function animateNumber(id, target) {
+      const el  = document.getElementById(id);
+      let   cur = 0;
+      const inc = Math.ceil(target / 20);
+      const iv  = setInterval(() => {
+        cur = Math.min(cur + inc, target);
+        el.textContent = cur;
+        if (cur >= target) clearInterval(iv);
+      }, 50);
+    }
+
+    function renderHistory(items) {
+      const grid  = document.getElementById("historyGrid");
+      const empty = document.getElementById("emptyHistory");
+
+      if (items.length === 0) {
+        grid.innerHTML  = "";
+        empty.style.display = "block";
+        return;
+      }
+
+      empty.style.display = "none";
+      const sevColors = {
+        "None":"#a8d832","Mild":"#fbbf24",
+        "Moderate":"#f97316","Severe":"#ef4444","Unknown":"#94a3b8"
+      };
+
+      grid.innerHTML = items.slice().reverse().map((item, i) => `
+        <div class="history-card" style="animation-delay:${i*0.05}s">
+          <div class="hc-top">
+            <div>
+              <div class="hc-crop">${item.crop || "Unknown"}</div>
+              <div class="hc-disease">${item.disease || "Unknown"}</div>
+            </div>
+            <div class="hc-conf">${item.confidence || 0}%</div>
+          </div>
+          <div class="hc-sev" style="color:${sevColors[item.severity]||'#94a3b8'}">
+            ● ${item.severity || "Unknown"}
+          </div>
+          <div class="hc-desc">${(item.description||"").substring(0,100)}...</div>
+          <div class="hc-date">${new Date(item.timestamp).toLocaleDateString("en-US",{
+            year:"numeric",month:"short",day:"numeric",
+            hour:"2-digit",minute:"2-digit"
+          })}</div>
+          <div class="hc-actions">
+            <button onclick="viewDetails(${i})" class="hc-btn">View Details</button>
+            <button onclick="deleteItem(${i})" class="hc-btn hc-btn-del">Delete</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    window.filterHistory = function() {
+      const crop = document.getElementById("filterCrop").value;
+      const sev  = document.getElementById("filterSeverity").value;
+      let   filtered = allHistory;
+      if (crop !== "all") filtered = filtered.filter(h => h.crop === crop);
+      if (sev  !== "all") filtered = filtered.filter(h => h.severity === sev);
+      renderHistory(filtered);
+    };
+
+    window.clearHistory = function() {
+      if (confirm("Clear all scan history? This cannot be undone.")) {
+        localStorage.removeItem("leafsense_history");
+        allHistory = [];
+        updateStats();
+        renderHistory([]);
+      }
+    };
+
+    window.deleteItem = function(index) {
+      const reversed = allHistory.slice().reverse();
+      const realIndex = allHistory.length - 1 - index;
+      allHistory.splice(realIndex, 1);
+      localStorage.setItem("leafsense_history", JSON.stringify(allHistory));
+      updateStats();
+      renderHistory(allHistory);
+    };
+
+    window.viewDetails = function(index) {
+      const reversed = allHistory.slice().reverse();
+      const item     = reversed[index];
+      const treatments = (item.treatment||[]).map(t=>`• ${t}`).join("\n");
+      alert(`LEAFSENSE DIAGNOSIS REPORT\n${"─".repeat(40)}\nDisease    : ${item.disease}\nCrop       : ${item.crop}\nConfidence : ${item.confidence}%\nSeverity   : ${item.severity}\n\nDescription:\n${item.description}\n\nTreatment:\n${treatments}\n\nPrevention:\n${item.prevention}\n\nDate: ${new Date(item.timestamp).toLocaleString()}`);
+    };
+
+    // Theme toggle
+    window.toggleTheme = function() {
+      const body = document.body;
+      const btn  = document.getElementById("themeBtn");
+      if (body.classList.contains("light-mode")) {
+        body.classList.remove("light-mode");
+        btn.textContent = "🌙 Dark";
+        localStorage.setItem("leafsense_theme","dark");
+      } else {
+        body.classList.add("light-mode");
+        btn.textContent = "☀️ Light";
+        localStorage.setItem("leafsense_theme","light");
+      }
+    };
+
+    // Apply saved theme
+    if (localStorage.getItem("leafsense_theme") === "light") {
+      document.body.classList.add("light-mode");
+      document.getElementById("themeBtn").textContent = "☀️ Light";
+    }
+
+    loadHistory();
+  </script>
+
+  <style>
+    /* Dashboard styles */
+    .dash-header {
+      background: linear-gradient(180deg, rgba(26,58,38,0.5) 0%, transparent 100%);
+      padding: 50px 40px 0;
+    }
+    .dash-header-inner {
+      display: flex; align-items: center; gap: 24px;
+      max-width: 1100px; margin: 0 auto 40px;
+      flex-wrap: wrap;
+    }
+    .dash-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg,#1a3a2d,#2d6a4a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 700; color: var(--accent);
+      border: 3px solid var(--accent); flex-shrink: 0; overflow: hidden;
+    }
+    .dash-info { flex: 1; }
+    .dash-info h1 { font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:4px; }
+    .dash-badge {
+      display: inline-block; background: rgba(168,216,50,0.1);
+      border: 1px solid var(--accent); border-radius: 20px;
+      padding: 4px 12px; font-size: 0.75rem; color: var(--accent);
+      margin-top: 6px;
+    }
+    .btn-signout {
+      background: none; border: 1px solid rgba(239,68,68,0.4);
+      border-radius: 8px; padding: 10px 20px; color: #ef4444;
+      cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+    }
+    .btn-signout:hover { background: rgba(239,68,68,0.1); }
+
+    /* Stats */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 16px; max-width: 1100px; margin: 0 auto;
+      padding-bottom: 40px;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border-soft);
+      border-radius: 12px; padding: 24px; text-align: center;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--accent); font-family:'Playfair Display',serif; }
+    .stat-label  { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+    /* History */
+    .history-section { padding: 20px 40px 80px; max-width: 1140px; margin: 0 auto; }
+    .history-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+    }
+    .history-header h2 { font-family:'Playfair Display',serif; font-size:1.6rem; }
+    .filter-select {
+      background: var(--bg-card); border: 1px solid var(--border-soft);
+      border-radius: 6px; padding: 8px 14px; color: var(--text);
+      font-family: 'DM Sans',sans-serif; font-size: 0.85rem; cursor: pointer;
+    }
+    .history-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 20px;
+    }
+    .history-card {
+      background: var(--bg-card); border: 1px solid var(--border-soft);
+      border-radius: 12px; padding: 20px;
+      animation: fadeUp 0.4s ease both;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .history-card:hover { transform:translateY(-3px); border-color:rgba(168,216,50,0.3); }
+    .hc-top  { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+    .hc-crop { font-size:0.7rem; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:3px; }
+    .hc-disease { font-family:'Playfair Display',serif; font-size:1rem; }
+    .hc-conf { background:rgba(168,216,50,0.1); color:var(--accent); border:1px solid var(--accent); border-radius:6px; padding:4px 10px; font-size:0.85rem; font-weight:700; }
+    .hc-sev  { font-size:0.8rem; margin-bottom:8px; }
+    .hc-desc { color:var(--text-muted); font-size:0.82rem; line-height:1.5; margin-bottom:10px; }
+    .hc-date { color:var(--text-muted); font-size:0.72rem; margin-bottom:14px; }
+    .hc-actions { display:flex; gap:8px; }
+    .hc-btn { flex:1; padding:8px; background:none; border:1px solid var(--border-soft); border-radius:6px; color:var(--text-muted); cursor:pointer; font-size:0.78rem; transition:all 0.2s; }
+    .hc-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .hc-btn-del:hover { border-color:#ef4444 !important; color:#ef4444 !important; }
+
+    /* Light mode */
+    body.light-mode {
+      --bg: #f0ece0; --bg-card: #ffffff; --bg-card2: #f5f0e8;
+      --text: #1b3a2d; --text-muted: #4a7a5a; --border-soft: rgba(27,58,45,0.15);
+      --border: rgba(168,216,50,0.4);
+    }
+    body.light-mode .navbar { background: rgba(240,236,224,0.95); }
+
+    /* Mobile */
+    @media (max-width:768px) {
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .history-grid { grid-template-columns: 1fr; }
+      .dash-header { padding: 30px 20px 0; }
+      .history-section { padding: 20px 20px 60px; }
+      .dash-header-inner { flex-direction:column; text-align:center; }
+    }
+  </style>
+
+</body>
+</html>
